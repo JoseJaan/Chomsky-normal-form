@@ -1,0 +1,13 @@
+Entrada:
+S -> aS | bS | C | D
+C -> c | .
+D -> abc
+D -> .
+
+Saída deve ser equivalente à:
+S' -> AS | BS | a | b | c | AT1 | .
+S  -> AS | BS | a | b | c | AT1
+T1 -> BC
+A  -> a
+B  -> b
+C  -> c
