@@ -8,6 +8,8 @@
 using namespace std;
 
 int main() {
+    //Cria uma tabela hash;
+    //Uma string, que é o estado, e um vetor de string, que são as regras
     unordered_map<string, vector<string>> grammar;
     string filename = "gramatica.txt";
     
@@ -17,6 +19,7 @@ int main() {
         return 1;
     }
     
+    //Loop para ler o arquivo
     string line;
     while (getline(file, line)) {
         
