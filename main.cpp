@@ -88,9 +88,37 @@ public:
             cout << rule.first << " -> ";
             for (size_t i = 0; i < rule.second.size(); i++) {
                 cout << rule.second[i];
-                if (i < rule.second.size() - 1) cout << " | ";
+                if (i < rule.second.size() - 1){   
+                    cout << " | ";
+                }
             }
             cout << endl;
+        }
+    }
+
+    // ===================================
+    //NÃO ESTÁ PRONTA !!
+    // ===================================
+    void removeLambda(){
+        //Esse vetor armazena todos os estados que produzem lambda
+        vector<string> lambdaProductions;
+
+        //Para cada estado, que não seja o inicial, verifica suas regras buscando por algum lambda
+        //Se existir, adiciona o estado no vetor
+        for (const auto& rule : grammar) {
+            if(rule.first != initialSymbol){
+                for (size_t i = 0; i < rule.second.size(); i++) {
+                    if(rule.second[i] == "."){
+                        lambdaProductions.push_back(rule.first);
+                    }
+                }
+            }
+        }
+
+        //Para cada estado, verifica se ele possui uma regra que contenha apenas símbolos anuláveis
+        for (const auto& rule : grammar) {
+            for (size_t i = 0; i < rule.second.size(); i++) {
+            }
         }
     }
 };
@@ -101,10 +129,11 @@ int main() {
     if (Grammar.loadGrammar()) {
         Grammar.addStartSymbol();
         Grammar.printGrammar();
+        Grammar.removeLambda();
     }
     else{
         cout << "Erro ao acessar o arquivo";
     }
-
+        
     return 0;
 }
