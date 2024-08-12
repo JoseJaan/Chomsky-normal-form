@@ -1,4 +1,6 @@
 S -> aS | bS | C | D
+B -> Ccc | .
+D -> zz | .
 C -> c | .
-D -> abc
+E -> abc
 
