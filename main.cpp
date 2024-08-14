@@ -9,49 +9,49 @@ using namespace std;
 
 class ChomskyNormalForm {
 private:
-    unordered_map<string, vector<string>> grammar;
+    unordered_map<string, vector<string>> gramatica; 
     string filename;
-    string initialSymbol;
+    string simboloInicial;
 
 public:
-    ChomskyNormalForm(const string& filename) : filename(filename), initialSymbol("") {}
+    ChomskyNormalForm(const string& filename) : filename(filename), simboloInicial("") {}
 
-    bool loadGrammar() {
+    bool carregaGramatica() {  // função pra carregar a gramática do arquivo
         ifstream file(filename);
-        if (!file.is_open()) {
+        if (!file.is_open()) {  // checa erro no processo
             cout << "Erro ao abrir o arquivo!" << endl;
             return false;
         }
 
         string line;
-        int countInitialAppearance = 0;
+        int countIniciais = 0;
         while (getline(file, line)) {
             stringstream inputFile(line);
-            string nonTerminal, arrow, production;
+            string naoTerminal, seta, production;  // símbolos da gramática
 
-            inputFile >> nonTerminal >> arrow;
+            inputFile >> naoTerminal >> seta;
 
-            if (countInitialAppearance == 0) {
-                initialSymbol = nonTerminal;
+            if (countIniciais == 0) {
+                simboloInicial = naoTerminal;
             }
 
             while (getline(inputFile, production, '|')) {
-                production.erase(0, production.find_first_not_of(" \t\n\v"));
+                production.erase(0, production.find_first_not_of(" \t\n\v"));  // comentar
                 production.erase(production.find_last_not_of(" \t\n\v") + 1);
 
-                grammar[nonTerminal].push_back(production);
+                gramatica[naoTerminal].push_back(production);
             }
-            countInitialAppearance++;
+            countIniciais++;
         }
 
         file.close();
         return true;
     }
 
-    bool checkInitialRecursion() {
-        for (const auto& rule : grammar) {
-            for (const string& production : rule.second) {
-                if (production.find(initialSymbol) == 1) {
+    bool checaRecursaoInicial() {
+        for (const auto& rule : gramatica) {  // 'rule' é cada par de chave e valor de 'gramatica'
+            for (const string& production : rule.second) {  // comentar (o que é second?)
+                if (production.find(simboloInicial) == 1) {
                     return true;
                 }
             }
@@ -59,14 +59,14 @@ public:
         return false;
     }
 
-    void addStartSymbol() {
-        if (checkInitialRecursion()) {
-            grammar["S'"].push_back(initialSymbol);
+    void adicionaSimboloInicial() {
+        if (checaRecursaoInicial()) {
+            gramatica["S'"].push_back(simboloInicial);
         }
     }
 
-    void printGrammar() const {
-        for (const auto& rule : grammar) {
+    void printaGramatica() const {
+        for (const auto& rule : gramatica) {
             cout << rule.first << " -> ";
             for (size_t i = 0; i < rule.second.size(); i++) {
                 cout << rule.second[i];
@@ -79,15 +79,15 @@ public:
     }
 
 void removeLambda() {
-    vector<string> lambdaProductions;
+    vector<string> producoesLambda;
 
     // Identifica e remove produções lambda
-    for (auto& rule : grammar) {
-        if (rule.first != initialSymbol) {
+    for (auto& rule : gramatica) {
+        if (rule.first != simboloInicial) {
             for (size_t i = 0; i < rule.second.size(); i++) {
                 if (rule.second[i] == ".") {
-                    lambdaProductions.push_back(rule.first);
-                    grammar[rule.first].erase(grammar[rule.first].begin() + i);
+                    producoesLambda.push_back(rule.first);
+                    gramatica[rule.first].erase(gramatica[rule.first].begin() + i);
                     i--; // Ajusta o índice para não pular produções
                 }
             }
@@ -95,12 +95,12 @@ void removeLambda() {
     }
 
     // Verifica se o estado inicial (ou S') deve receber a produção " | . "
-    bool initialRecursion = checkInitialRecursion();
-    string initialToCheck = initialRecursion ? "S'" : initialSymbol;
+    bool initialRecursion = checaRecursaoInicial();
+    string initialToCheck = initialRecursion ? "S'" : simboloInicial;
     bool addLambdaToInitial = false;
 
     // Verifica se qualquer produção do estado inicial pode gerar uma produção lambda
-    for (const auto& production : grammar[initialToCheck]) {
+    for (const auto& production : gramatica[initialToCheck]) {
         if (production.find(".") == string::npos) {
             addLambdaToInitial = true;
             break;
@@ -109,7 +109,7 @@ void removeLambda() {
 
     // Adiciona " | . " ao estado inicial ou a S'
     if (addLambdaToInitial) {
-        grammar[initialToCheck].push_back(".");
+        gramatica[initialToCheck].push_back(".");
     }
 }
 
@@ -117,12 +117,12 @@ void removeLambda() {
 };
 
 int main() {
-    ChomskyNormalForm Grammar("gramatica.txt");
+    ChomskyNormalForm Gramatica("gramatica.txt");
 
-    if (Grammar.loadGrammar()) {
-        Grammar.addStartSymbol();
-        Grammar.removeLambda(); // Chama apenas removeLambda
-        Grammar.printGrammar();
+    if (Gramatica.carregaGramatica()) {
+        Gramatica.adicionaSimboloInicial();
+        Gramatica.removeLambda(); // Chama apenas removeLambda   // otavio -> cm assim?
+        Gramatica.printaGramatica();
     } else {
         cout << "Erro ao acessar o arquivo";
     }
