@@ -18,4 +18,4 @@ e então rodar o arquivo main.cpp.
 # Autoria
 
 O projeto foi feito pelos alunos [Bernado Diniz](https://github.com/youserz), [José Acerbi](https://github.com/JoseJaan),
-[Rafael Rezende](https://github.com/rafa-rez), e [Otávio Sbampato](https://github.com/otaviosbampato/).
+[Otávio Sbampato](https://github.com/otaviosbampato/), e [Rafael Rezende](https://github.com/rafa-rez).

@@ -1,7 +1,7 @@
-1-> carregar o arquivo
-2-> checar recursão inicial -> adicionar símbolo inicial
-3-> remover anuláveis
-4-> chain
+1-> carregar o arquivo  (OK)
+2-> checar recursão inicial -> adicionar símbolo inicial  (OK)
+3-> remover anuláveis (removeLambda)   (OK)
+4-> chain  (OK)
 5-> remover inúteis (não terminais)
 6-> reach (remover os impossíveis de chegar)
 7-> terminal tem que ser tamanho um
