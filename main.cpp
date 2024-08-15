@@ -11,6 +11,8 @@ using namespace std;
 
 class ChomskyNormalForm {
 private:
+    //Cria uma tabela hash;
+    //Uma string, que é o estado, e um vetor de string, que são as regras
     unordered_map<string, vector<string>> gramatica; 
     string filename;
     string simboloInicial;
@@ -25,6 +27,9 @@ public:
             return false;
         }
 
+        //Loop para ler o arquivo
+        //initialSymbol recebe o símbolo inicial da gramática
+        //se countInitialAppearance==0, o primeiro símbolo está sendo lido, então ele é o inicial
         string line;
         int countIniciais = 0;
         while (getline(file, line)) {  // lê o arquivo linha por linha
@@ -38,9 +43,14 @@ public:
             }
 
             while (getline(inputFile, production, '|')) {
+                //Apaga espaços em branco
+                //\t = tabulações
+                //\n = quebra de linha
+                //\v = tabulação vertical
                 production.erase(0, production.find_first_not_of(" \t\n\v"));  // comentar
+                //+1 remove todos os caracteres após o último caractere não branco
                 production.erase(production.find_last_not_of(" \t\n\v") + 1);
-
+                //Adiciona a regra ao estado relacionado
                 gramatica[naoTerminal].push_back(production);
             }
             countIniciais++;
@@ -50,8 +60,11 @@ public:
         return true;
     }
 
+    //Verifica a gramática em busca de recursividade do símbolo inicial
     bool checaRecursaoInicial() {
+        //Esse for é executado para cada regra da gramática
         for (const auto& regra : gramatica) {  // 'regra' é cada par de chave e valor de 'gramatica'
+        //Esse for é executado para cada produção da regra
             for (const string& production : regra.second) {  // comentar (o que é second?)
                 if (production.find(simboloInicial) == 1) {
                     return true;
@@ -67,6 +80,7 @@ public:
         }
     }
 
+    //Printa a gramática
     void printaGramatica() const {
         for (const auto& regra : gramatica) {
             cout << regra.first << " -> ";
