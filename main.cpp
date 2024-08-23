@@ -129,6 +129,67 @@ public:
         } 
     }
 
+    void removeLambdaTeste(){
+        vector<string> producoesLambda;
+
+        //Encontra regras que produzem lambda e já remove o lambda
+        for (auto& regra : gramatica) {
+            if (regra.first != simboloInicial) {
+                for (size_t i = 0; i < regra.second.size(); i++) {
+                    if (regra.second[i] == ".") {
+                        producoesLambda.push_back(regra.first);
+                        gramatica[regra.first].erase(gramatica[regra.first].begin() + i);
+                        i--; // Ajusta o índice para não pular produções
+                    }
+                }
+            }
+        }
+
+        
+        //Para cada regra de cada estado, verifica todos os caracteres da regra
+        //Se a regra possui apenas simbolos anuláveis, o estado é anulável e adicionado no vetor
+        //Toda vez que um novo estado anulável é encontrado, o loop reinicia, fazendo uma nova verificação
+        bool adicionouNovasAnulaveis;
+        do{
+            adicionouNovasAnulaveis = false;
+
+            for(auto& regra:gramatica){
+                //Esse if verifica se o estado analisado já não é anulável
+                //'find(producoesLambda.begin(),producoesLambda.end(),regra.first)' faz uma busca em 'producoesLambda' pelo estado, do inicio ao fim
+                //Se nada for encontrado, o retorno de 'find' vai ser igual a 'producoesLambda.end()' e o código entra no if
+                if(find(producoesLambda.begin(),producoesLambda.end(),regra.first) == producoesLambda.end()){
+                    //para cada produção da regra
+                    for(const string& producao : regra.second ){
+                        bool isAnulavel = true;
+                        //para cada caractere da regra
+                        //se for encontrado um unico caractere terminal ou que não seja anulável, essa regra não é anulável
+                        //a verificação sobre o caractere ser anulável é igual ao if de cima
+                        for(char c : producao){
+                            if(!isupper(c) or find(producoesLambda.begin(), producoesLambda.end(), string(1, c)) == producoesLambda.end()){
+                                isAnulavel = false;
+                            }
+                        }
+                        //se a regra possui apenas caracteres anuláveis, o estado é anulável e o adiciona no vetor
+                        //o loop é reiniciado
+                        if(isAnulavel){
+                            producoesLambda.push_back(regra.first);
+                            adicionouNovasAnulaveis = true;
+                        }
+
+                    }
+                }
+            }
+        }while (adicionouNovasAnulaveis);
+
+        //printa anuláveis
+        cout << "Estados anuláveis: " << endl;
+        for (const string& estados : producoesLambda) {
+        cout << estados << " ";
+        }
+        cout << endl;
+        cout << "================= " << endl;
+    }
+
     void aplicaRegraDaCadeia() {  // aplica a regra da cadeia à gramática
     // regra."first" é o símbolo (A, B, S...), e "second" a sua produção.
 
@@ -188,7 +249,8 @@ int main() {
 
     if (Gramatica.carregaGramatica()) {
         Gramatica.adicionaSimboloInicial();
-        Gramatica.removeLambda(); // Chama apenas removeLambda   // otavio -> cm assim?
+        //Gramatica.removeLambda(); // Chama apenas removeLambda   // otavio -> cm assim?
+        Gramatica.removeLambdaTeste();
         Gramatica.printaGramatica();
     } else {
         cout << "Erro ao acessar o arquivo";

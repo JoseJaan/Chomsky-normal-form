@@ -9,6 +9,9 @@
         "ostream": "cpp",
         "utility": "cpp",
         "iostream": "cpp",
-        "format": "cpp"
+        "format": "cpp",
+        "initializer_list": "cpp",
+        "xhash": "cpp",
+        "xutility": "cpp"
     }
 }
