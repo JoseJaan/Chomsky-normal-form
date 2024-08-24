@@ -242,6 +242,38 @@ public:
         }
     }
 
+    void aplicaReach () {
+        unordered_set<string> alcancaveis;
+        vector<string> pilha;
+
+        // Inicio no símbolo inicial
+        pilha.push_back(simboloInicial);
+        alcancaveis.insert(simboloInicial);
+
+        // Loop continua a rodar enquanto a pilha não estiver vazia
+        while (!pilha.empty()) {
+            string ElementoAtual = pilha.back(); //Pego o Elemento no topo da pilha para verificar o que ele alcança
+            pilha.pop_back(); // Removo ele para processamento
+
+
+            for (const string& producao : gramatica[ElementoAtual]){
+                for (char simbolo : producao){
+                    if (isupper(simbolo) && alcancaveis.find(string(1,simbolo)) == alcancaveis.end()) {
+                        alcancaveis.insert(string(1,simbolo));
+                        pilha.push_back(string(1,simbolo));
+                    }
+                }
+            }
+        }
+
+            for (auto percorredor = gramatica.begin(); percorredor != gramatica.end();) {
+                if (alcancaveis.find(percorredor->first) == alcancaveis.end()) {
+                    percorredor = gramatica.erase(percorredor);
+                }else {
+                    percorredor++;
+                }
+            }
+        }
 };
 
 int main() {
@@ -251,7 +283,9 @@ int main() {
         Gramatica.adicionaSimboloInicial();
         //Gramatica.removeLambda(); // Chama apenas removeLambda   // otavio -> cm assim?
         Gramatica.removeLambdaTeste();
+        Gramatica.aplicaReach();
         Gramatica.printaGramatica();
+        
     } else {
         cout << "Erro ao acessar o arquivo";
     }
