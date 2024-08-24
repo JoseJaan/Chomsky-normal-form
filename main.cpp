@@ -203,42 +203,36 @@ public:
             criouNovaProducao = false;
             for(auto& regra : gramatica ){
                 //verifica se a regra é anulável
-                //if(find(producoesLambda.begin(),producoesLambda.end(),regra.first) != producoesLambda.end()){
-                    vector<string> novasProducoes;
-                    //para cada producao da regra
-                    for(const string& producao : regra.second){
-                        //para cada caractere da produção
-                        for(size_t i = 0; i < producao.size(); i++){
-                            char c = producao[i];
-                            //verifica se o caractere é anulável
-                            if(isupper(c) and find(producoesLambda.begin(), producoesLambda.end(), string(1, c)) != producoesLambda.end()){
-                                //cria uma nova producao sem o caractere anulável
-                                string novaProducao = producao.substr(0, i) + producao.substr(i + 1);
-                                //verifica se a nova produção ja nao existe
-                                //se a nova produção não é vazia, não existe na regra e já não foi inserida em 'novasProducoes'
-                                if(!novaProducao.empty() and find(regra.second.begin(), regra.second.end(), novaProducao) == regra.second.end() and find(novasProducoes.begin(), novasProducoes.end(), novaProducao) == novasProducoes.end()){
-                                    novasProducoes.push_back(novaProducao);
-                                    criouNovaProducao = true;
-                                }
-                                //se a nova produção é vazia e está sendo analisado a regra inicial
-                                else if((novaProducao.empty()) and (regra.first == simboloInicial)){
-                                    //altera a produção vazia para o simbolo de lambda
-                                    novaProducao = '.';
-                                    //verifica se ja nao existe lambda e insere
-                                    if(find(regra.second.begin(), regra.second.end(), novaProducao) == regra.second.end() and find(novasProducoes.begin(), novasProducoes.end(), novaProducao) == novasProducoes.end())
-                                    novasProducoes.push_back(novaProducao);
-                                }
+                vector<string> novasProducoes;
+                //para cada producao da regra
+                for(const string& producao : regra.second){
+                    //para cada caractere da produção
+                    for(size_t i = 0; i < producao.size(); i++){
+                        char c = producao[i];
+                        //verifica se o caractere é anulável
+                        if(isupper(c) and find(producoesLambda.begin(), producoesLambda.end(), string(1, c)) != producoesLambda.end()){
+                            //cria uma nova producao sem o caractere anulável
+                            string novaProducao = producao.substr(0, i) + producao.substr(i + 1);
+                            //verifica se a nova produção ja nao existe
+                            //se a nova produção não é vazia, não existe na regra e já não foi inserida em 'novasProducoes'
+                            if(!novaProducao.empty() and find(regra.second.begin(), regra.second.end(), novaProducao) == regra.second.end() and find(novasProducoes.begin(), novasProducoes.end(), novaProducao) == novasProducoes.end()){
+                                novasProducoes.push_back(novaProducao);
+                                criouNovaProducao = true;
                             }
-                        }   
-                    }
-                     regra.second.insert(regra.second.end(), novasProducoes.begin(), novasProducoes.end());
-                //}
+                            //se a nova produção é vazia e está sendo analisado a regra inicial
+                            else if((novaProducao.empty()) and (regra.first == simboloInicial)){
+                                //altera a produção vazia para o simbolo de lambda
+                                novaProducao = '.';
+                                //verifica se ja nao existe lambda e insere
+                                if(find(regra.second.begin(), regra.second.end(), novaProducao) == regra.second.end() and find(novasProducoes.begin(), novasProducoes.end(), novaProducao) == novasProducoes.end())
+                                novasProducoes.push_back(novaProducao);
+                            }
+                        }
+                    }   
+                }
+                    regra.second.insert(regra.second.end(), novasProducoes.begin(), novasProducoes.end());
             }
         }while(criouNovaProducao);
-
-
-
-        //ACA -> CA -> AA -> AC -> A -> C  
 }
 
     void aplicaRegraDaCadeia() {  // aplica a regra da cadeia à gramática
@@ -300,7 +294,6 @@ int main() {
 
     if (Gramatica.carregaGramatica()) {
         Gramatica.adicionaSimboloInicial();
-        //Gramatica.removeLambda(); // Chama apenas removeLambda   // otavio -> cm assim?
         Gramatica.removeLambdaTeste();
         Gramatica.printaGramatica();
     } else {
