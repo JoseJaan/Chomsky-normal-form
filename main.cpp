@@ -290,6 +290,21 @@ public:
                 }
             }
         }
+
+        void aplicaChomsky(){
+        //Para cada regra da gramática
+        //  Para cada produção da regra
+        //      Se a regra possui tamanho > 2:
+        //          Mantém primeiro símbolo
+        //          Cria um novo estado com uma produção que contém os simbolos restantes
+        //          Verifica se esse estado já não existe. Caso não exista, adicione ele a gramática
+        //  Verifica a gramática até não gerar mais nenhum estado novo
+        //
+        //Para cada regra da gramática
+        //  Para cada produção da regra
+        //      Se a regra possui tamanho == 2 e um não terminal:
+        //          Cria um estado com uma produção para o não terminal
+    }
 };
 
 int main() {
