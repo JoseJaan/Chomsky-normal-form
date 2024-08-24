@@ -41,7 +41,7 @@ public:
             if (countIniciais == 0) {
                 simboloInicial = naoTerminal;
             }
-
+ 
             while (getline(inputFile, production, '|')) {
                 //Apaga espaços em branco
                 //\t = tabulações
@@ -54,6 +54,7 @@ public:
                 gramatica[naoTerminal].push_back(production);
             }
             countIniciais++;
+            // (inclusive os próximos iniciais) a ela?
         }
 
         file.close();
@@ -65,8 +66,8 @@ public:
         //Esse for é executado para cada regra da gramática
         for (const auto& regra : gramatica) {  // 'regra' é cada par de chave e valor de 'gramatica'
         //Esse for é executado para cada produção da regra
-            for (const string& production : regra.second) {  // comentar (o que é second?)
-                if (production.find(simboloInicial) == 1) {
+            for (const string& production : regra.second) {
+                if (production.find(simboloInicial)) {
                     return true;
                 }
             }
@@ -81,7 +82,7 @@ public:
     }
 
     //Printa a gramática
-    void printaGramatica() const {
+    void printaGramatica() const {  // o-> pra que esse const depois?
         for (const auto& regra : gramatica) {
             cout << regra.first << " -> ";
             for (size_t i = 0; i < regra.second.size(); i++) {
@@ -94,58 +95,21 @@ public:
         }
     }
 
-    void removeLambda() {
-        vector<string> producoesLambda;
-
-    // Identifica e remove produções lambda
-        for (auto& regra : gramatica) {
-            if (regra.first != simboloInicial) {
-                for (size_t i = 0; i < regra.second.size(); i++) {
-                    if (regra.second[i] == ".") {
-                        producoesLambda.push_back(regra.first);
-                        gramatica[regra.first].erase(gramatica[regra.first].begin() + i);
-                        i--; // Ajusta o índice para não pular produções
-                    }
-                }
-            }
-        }
-
-        // Verifica se o estado inicial (ou S') deve receber a produção " | . "
-        bool initialRecursion = checaRecursaoInicial();
-        string initialToCheck = initialRecursion ? "S'" : simboloInicial;
-        bool addLambdaToInitial = false;
-
-        // Verifica se qualquer produção do estado inicial pode gerar uma produção lambda
-        for (const auto& production : gramatica[initialToCheck]) {
-            if (production.find(".") == string::npos) {
-                addLambdaToInitial = true;
-                break;
-            }
-        }
-
-        // Adiciona " | . " ao estado inicial ou a S'
-        if (addLambdaToInitial) {
-            gramatica[initialToCheck].push_back(".");
-        } 
-    }
-
     void removeLambdaTeste(){
         vector<string> producoesLambda;
-
         //Encontra regras que produzem lambda e já remove o lambda
         for (auto& regra : gramatica) {
             if (regra.first != simboloInicial) {
                 for (size_t i = 0; i < regra.second.size(); i++) {
                     if (regra.second[i] == ".") {
                         producoesLambda.push_back(regra.first);
-                        gramatica[regra.first].erase(gramatica[regra.first].begin() + i);
+                        gramatica[regra.first].erase(gramatica[regra.first].begin() + i);  // !
                         i--; // Ajusta o índice para não pular produções
                     }
                 }
             }
         }
 
-        
         //Para cada regra de cada estado, verifica todos os caracteres da regra
         //Se a regra possui apenas simbolos anuláveis, o estado é anulável e adicionado no vetor
         //Toda vez que um novo estado anulável é encontrado, o loop reinicia, fazendo uma nova verificação
@@ -157,7 +121,7 @@ public:
                 //Esse if verifica se o estado analisado já não é anulável
                 //'find(producoesLambda.begin(),producoesLambda.end(),regra.first)' faz uma busca em 'producoesLambda' pelo estado, do inicio ao fim
                 //Se nada for encontrado, o retorno de 'find' vai ser igual a 'producoesLambda.end()' e o código entra no if
-                if(find(producoesLambda.begin(),producoesLambda.end(),regra.first) == producoesLambda.end()){
+                if(find(producoesLambda.begin(),producoesLambda.end(),regra.first) == producoesLambda.end()){ // if negativo
                     //para cada produção da regra
                     for(const string& producao : regra.second ){
                         bool isAnulavel = true;
@@ -179,7 +143,7 @@ public:
                     }
                 }
             }
-        }while (adicionouNovasAnulaveis);
+        } while(adicionouNovasAnulaveis);
 
         //printa anuláveis
         cout << "Estados anuláveis: " << endl;
@@ -188,8 +152,7 @@ public:
         }
         cout << endl;
         cout << "================= " << endl;
-
-        
+       
         //para cada regra dos estados anuláveis
         //para cada caractere da regra
         //se o caractere é um simbolo anulável, gere uma nova regra sem esse símbolo
@@ -198,7 +161,8 @@ public:
         //reinicie a verificação das regras da gramática até o final
 
         //para cada regra da gramatica
-        bool criouNovaProducao = false;
+        bool criouNovaProducao;
+        
         do{
             criouNovaProducao = false;
             for(auto& regra : gramatica ){
@@ -212,13 +176,12 @@ public:
                         //verifica se o caractere é anulável
                         if(isupper(c) and find(producoesLambda.begin(), producoesLambda.end(), string(1, c)) != producoesLambda.end()){
                             //cria uma nova producao sem o caractere anulável
-
                             //producao.substr(0, i) + producao.substr(i + 1); === pega a produção original e a divide em duas: de 0 até i e de i até o final, sendo i 
                             //o índice do caractere analisado. Após isso, concatena as duas novas strings em uma única string
                             string novaProducao = producao.substr(0, i) + producao.substr(i + 1);
-                            //verifica se a nova produção ja nao existe
+                            //verifica se a nova produção ja nao existe,
                             //se a nova produção não é vazia, não existe na regra e já não foi inserida em 'novasProducoes'
-                            if(!novaProducao.empty() and find(regra.second.begin(), regra.second.end(), novaProducao) == regra.second.end() and find(novasProducoes.begin(), novasProducoes.end(), novaProducao) == novasProducoes.end()){
+                            if(!novaProducao.empty() and find(regra.second.begin(), regra.second.end(), novaProducao) == regra.second.end() and find(novasProducoes.begin(), novasProducoes.end(), novaProducao) == novasProducoes.end()){ // muito interessante
                                 novasProducoes.push_back(novaProducao);
                                 criouNovaProducao = true;
                             }
@@ -226,8 +189,9 @@ public:
                             else if((novaProducao.empty()) and (regra.first == simboloInicial)){
                                 novaProducao = '.';
                                 //verifica se ja nao existe lambda e insere
-                                if(find(regra.second.begin(), regra.second.end(), novaProducao) == regra.second.end() and find(novasProducoes.begin(), novasProducoes.end(), novaProducao) == novasProducoes.end())
+                                if(find(regra.second.begin(), regra.second.end(), novaProducao) == regra.second.end() and find(novasProducoes.begin(), novasProducoes.end(), novaProducao) == novasProducoes.end()){
                                 novasProducoes.push_back(novaProducao);
+                                }
                             }
                         }
                     }   
@@ -235,9 +199,9 @@ public:
                 //insere as novas produções na regra
                 regra.second.insert(regra.second.end(), novasProducoes.begin(), novasProducoes.end());
             }
-        }while(criouNovaProducao);
+        } while(criouNovaProducao);
         //loop é executado enquanto novas regras forem criadas
-}
+    }
 
     void aplicaRegraDaCadeia() {  // aplica a regra da cadeia à gramática
     // regra."first" é o símbolo (A, B, S...), e "second" a sua produção.
@@ -264,7 +228,7 @@ public:
                     }
                 }
 
-                alcancaveis.insert(novosAlcancaveis.begin(), novosAlcancaveis.end());  // por fim, adicionamos todos os novosAlcancaveis à alcancaveis.
+                alcancaveis.insert(novosAlcancaveis.begin(), novosAlcancaveis.end());  // por fim, adicionamos todos os novosAlcancaveis a alcancaveis.
             } while (adicionou);
 
             // copia as produções de cada não terminal em "alcancaveis" (exceto o próprio V)
@@ -272,15 +236,16 @@ public:
             for (const string& B : alcancaveis) {
                 if (B != V) {
                     for (const string& producao : gramatica[B]) {
-                        if (!(producao.length() == 1 && isupper(producao[0]))) {
+                        if ((!(producao.length() == 1 && isupper(producao[0]))) && (find(novasProducoes.begin(),novasProducoes.end(),producao) == novasProducoes.end())){
                             novasProducoes.push_back(producao);  // copiamos todo não-terminal em B para novasProducoes (exceto próprio V).
                         }
                     }
                 }
             }
-
+ 
             // adiciona as novas produções para o símbolo V
-            gramatica[V].insert(gramatica[V].end(), novasProducoes.begin(), novasProducoes.end());
+            gramatica[V].insert(gramatica[V].end(), novasProducoes.begin(), novasProducoes.end()); // a partir de gramatica[V].end(),
+            // adicionamos o intervalo de valores entre novasProducoes.begin() e end().
 
             // remove produções do tipo V -> B (as de cadeia)
             gramatica[V].erase(remove_if(gramatica[V].begin(), gramatica[V].end(),   //!!! cpa q eh bom mudar isso aq (ta mto low level)
@@ -288,6 +253,8 @@ public:
                                              return producao.length() == 1 && isupper(producao[0]);
                                          }),
                                gramatica[V].end());
+
+
         }
     }
 
