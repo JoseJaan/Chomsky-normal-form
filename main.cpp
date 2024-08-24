@@ -298,6 +298,7 @@ int main() {
     if (Gramatica.carregaGramatica()) {
         Gramatica.adicionaSimboloInicial();
         Gramatica.removeLambdaTeste();
+        Gramatica.aplicaRegraDaCadeia();
         Gramatica.aplicaReach();
         Gramatica.printaGramatica();
         
