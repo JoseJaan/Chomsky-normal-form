@@ -212,6 +212,9 @@ public:
                         //verifica se o caractere é anulável
                         if(isupper(c) and find(producoesLambda.begin(), producoesLambda.end(), string(1, c)) != producoesLambda.end()){
                             //cria uma nova producao sem o caractere anulável
+
+                            //producao.substr(0, i) + producao.substr(i + 1); === pega a produção original e a divide em duas: de 0 até i e de i até o final, sendo i 
+                            //o índice do caractere analisado. Após isso, concatena as duas novas strings em uma única string
                             string novaProducao = producao.substr(0, i) + producao.substr(i + 1);
                             //verifica se a nova produção ja nao existe
                             //se a nova produção não é vazia, não existe na regra e já não foi inserida em 'novasProducoes'
@@ -219,9 +222,8 @@ public:
                                 novasProducoes.push_back(novaProducao);
                                 criouNovaProducao = true;
                             }
-                            //se a nova produção é vazia e está sendo analisado a regra inicial
+                            //se a nova produção é vazia e está sendo analisado a regra inicial, deve ser inserido o sinal de lambda
                             else if((novaProducao.empty()) and (regra.first == simboloInicial)){
-                                //altera a produção vazia para o simbolo de lambda
                                 novaProducao = '.';
                                 //verifica se ja nao existe lambda e insere
                                 if(find(regra.second.begin(), regra.second.end(), novaProducao) == regra.second.end() and find(novasProducoes.begin(), novasProducoes.end(), novaProducao) == novasProducoes.end())
@@ -230,9 +232,11 @@ public:
                         }
                     }   
                 }
-                    regra.second.insert(regra.second.end(), novasProducoes.begin(), novasProducoes.end());
+                //insere as novas produções na regra
+                regra.second.insert(regra.second.end(), novasProducoes.begin(), novasProducoes.end());
             }
         }while(criouNovaProducao);
+        //loop é executado enquanto novas regras forem criadas
 }
 
     void aplicaRegraDaCadeia() {  // aplica a regra da cadeia à gramática
