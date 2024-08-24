@@ -67,7 +67,7 @@ public:
         for (const auto& regra : gramatica) {  // 'regra' é cada par de chave e valor de 'gramatica'
         //Esse for é executado para cada produção da regra
             for (const string& production : regra.second) {
-                if (production.find(simboloInicial)) {
+                if (production.find(simboloInicial) == 1) { //sem esse 1 aqui o if não funciona direito
                     return true;
                 }
             }
@@ -265,7 +265,6 @@ public:
         // Inicio no símbolo inicial
         pilha.push_back(simboloInicial);
         alcancaveis.insert(simboloInicial);
-
         // Loop continua a rodar enquanto a pilha não estiver vazia
         while (!pilha.empty()) {
             string ElementoAtual = pilha.back(); //Pego o Elemento no topo da pilha para verificar o que ele alcança
