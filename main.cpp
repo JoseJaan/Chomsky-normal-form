@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <map>
 
 using namespace std;
 
@@ -16,7 +17,8 @@ private:
     // Uma string, que é o estado, e um vetor de string, que são as regras
     unordered_map<string, vector<string>> gramatica;
     string filename;
-    string simboloInicial;
+    string simboloInicial, simboloInicialAntigo; //simboloInicialAntigo é utilizado apenas para imprimir a gramática em um formato melhor
+    bool adicionouSimboloInicial = false; //Utilizado apenas para o print
 
 public:
     ChomskyNormalForm(const string &filename) : filename(filename), simboloInicial("") {}
@@ -93,25 +95,84 @@ public:
         if (checaRecursaoInicial())
         {
             gramatica["S'"].push_back(simboloInicial);
+            simboloInicialAntigo = simboloInicial;
             simboloInicial = "S'";
+            adicionouSimboloInicial = true;
         }
     }
 
     // Printa a gramática
+    // void printaGramatica() const
+    // { // o-> pra que esse const depois?
+    //     for (const auto &regra : gramatica)
+    //     {
+    //         cout << regra.first << " -> ";
+    //         for (size_t i = 0; i < regra.second.size(); i++)
+    //         {
+    //             cout << regra.second[i];
+    //             if (i < regra.second.size() - 1)
+    //             {
+    //                 cout << " | ";
+    //             }
+    //         }
+    //         cout << endl;
+    //     }
+    // }
+
     void printaGramatica() const
-    { // o-> pra que esse const depois?
-        for (const auto &regra : gramatica)
+    {
+        // Primeiro, imprime a regra do símbolo inicial
+        auto inicial = gramatica.find(simboloInicial);
+        if (inicial != gramatica.end())
         {
-            cout << regra.first << " -> ";
-            for (size_t i = 0; i < regra.second.size(); i++)
+            cout << inicial->first << " -> ";
+            for (size_t i = 0; i < inicial->second.size(); i++)
             {
-                cout << regra.second[i];
-                if (i < regra.second.size() - 1)
+                cout << inicial->second[i];
+                if (i < inicial->second.size() - 1)
                 {
                     cout << " | ";
                 }
             }
             cout << endl;
+        }
+        if(adicionouSimboloInicial == true)
+        {
+            auto regra = gramatica.find(simboloInicialAntigo);
+            if (regra != gramatica.end())
+            {
+                cout << regra->first << " -> ";
+                for (size_t i = 0; i < regra->second.size(); i++)
+                {
+                    cout << regra->second[i];
+                    if (i < regra->second.size() - 1)
+                    {
+                        cout << " | ";
+                    }
+                }
+                cout << endl;
+            }
+        }
+
+        // Cria um map para armazenar as outras regras em ordem alfabética
+        map<string, vector<string>> gramaticaOrdenada(gramatica.begin(), gramatica.end());
+
+        // Imprime as demais regras, exceto a do símbolo inicial
+        for (const auto &regra : gramaticaOrdenada)
+        {
+            if (regra.first != simboloInicial && regra.first != simboloInicialAntigo)
+            {
+                cout << regra.first << " -> ";
+                for (size_t i = 0; i < regra.second.size(); i++)
+                {
+                    cout << regra.second[i];
+                    if (i < regra.second.size() - 1)
+                    {
+                        cout << " | ";
+                    }
+                }
+                cout << endl;
+            }
         }
     }
 
@@ -484,14 +545,6 @@ public:
             }
         }while(criouEstadoNovo == true);
 
-        // Para cada regra da gramática
-        //   Para cada produção da regra
-        //       Se a produção possui tamanho == 2 e um não terminal:
-        //           Cria um estado com uma produção para o não terminal
-
-        //remover a regra e adicionar uma nova correta
-
-        //verificar se funciona corretamente quando chamar um estado que tem nome de tamanho 2 (R1, R2, R3)
         bool criouNovaRegra = true;
         do{
             criouNovaRegra = false;
@@ -499,51 +552,74 @@ public:
             {
                 for(string &producao : regra.second)
                 {   
-                    if(producao.size() == 2){
-                        string novaProducao;
-                        for(char &caractere : producao)
+                    vector<string> simbolos;
+                    string simboloAtual;
+
+                    //Separa a producao em simbolos
+                    for(char &caractere : producao)
+                    {   
+                        //se o caractere é maiúsculo ou se é um dígito 
+                        //para ser um dígito, obrigatoriamente ele leu outro caractere antes, que está armazenado em simboloAtual
+                        if(isupper(caractere) || (isdigit(caractere) && !simboloAtual.empty()))
                         {
-                            if(!isupper(caractere))
+                            simboloAtual += caractere;
+                        }
+                        else
+                        {
+                            if(!simboloAtual.empty()) 
                             {
-                                bool modificouProducao = false;
+                                simbolos.push_back(simboloAtual);
+                                simboloAtual.clear();
+                            }
+                            simboloAtual += caractere;
+                            simbolos.push_back(simboloAtual);
+                            simboloAtual.clear();
+                        }
+                    }
+                    if(!simboloAtual.empty()) 
+                    {
+                        simbolos.push_back(simboloAtual);
+                    }
+
+                    if(simbolos.size() == 2)
+                    {
+                        string novaProducao;
+                        for(string &simbolo : simbolos)
+                        {
+                            if(simbolo.size() == 1 && !isupper(simbolo[0]))
+                            {
                                 bool achouProducaoIgual = false;
-                                //verificar se ja existe uma regra que tem uma produdao que produz apenas esse terminal
+                                //verificar se ja existe uma regra que tem uma produção que produz apenas esse terminal
                                 //caso negativo, criar uma nova regra
                                 //caso positivo, apenas alterar a produção da regra
-                                string stringCaractere(1, caractere);
-                                string novoCaractere;
                                 for(auto& regraVerificacao: gramatica)
                                 {   
                                     if(regraVerificacao.second.size() == 1)
                                     {
                                         for(const string &producaoVerificacao : regraVerificacao.second)
                                         {   
-                                            if(producaoVerificacao == stringCaractere){
-                                                novoCaractere += regraVerificacao.first;
-                                                modificouProducao = true;
+                                            if(producaoVerificacao == simbolo)
+                                            {
+                                                novaProducao += regraVerificacao.first;
                                                 achouProducaoIgual = true;
                                             }
                                         }
                                     }
                                 }
-                                //Não encontrou produção igual
-                                //Necessário criar nova regra
-                                if(achouProducaoIgual == false){
+                                //nenhuma regra que gera essa produção foi encontrada
+                                //uma nova regra é criada
+                                if(achouProducaoIgual == false)
+                                {
                                     string nomeRegra = "R" + to_string(numeroRegra);
-                                    gramatica[nomeRegra].push_back(stringCaractere);
+                                    gramatica[nomeRegra].push_back(simbolo);
                                     numeroRegra++;
                                     novaProducao += nomeRegra;
-                                    modificouProducao = true;
                                     criouNovaRegra = true;
                                 }
-                                if(modificouProducao == true){
-                                    novaProducao += novoCaractere;
-                                }
                             }
-                            //Se o caractere é maiúsculo, apenas o copia
                             else
                             {
-                                novaProducao += caractere;
+                                novaProducao += simbolo;
                             }
                         }
                         producao = novaProducao;
