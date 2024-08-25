@@ -76,9 +76,12 @@ public:
             // Esse for é executado para cada produção da regra
             for (const string &production : regra.second)
             {
-                if (production.find(simboloInicial) == 1)
-                { // sem esse 1 aqui o if não funciona direito
-                    return true;
+                for(char caractere : production){
+                    string stringCaractere(1, caractere);
+                    
+                    if(stringCaractere == simboloInicial){
+                        return true;
+                    }
                 }
             }
         }
@@ -90,6 +93,7 @@ public:
         if (checaRecursaoInicial())
         {
             gramatica["S'"].push_back(simboloInicial);
+            simboloInicial = "S'";
         }
     }
 
@@ -493,18 +497,14 @@ public:
             criouNovaRegra = false;
             for(auto &regra : gramatica)
             {
-                cout << "Verificando a regra " << regra.first << endl;
                 for(string &producao : regra.second)
                 {   
-                    cout << "Verificando a producao " << producao << endl;
                     if(producao.size() == 2){
-                        cout << " -> A producao possui tamanho 2 " <<  endl;
                         string novaProducao;
                         for(char &caractere : producao)
                         {
-                            cout << "Verificando o caractere " << caractere << endl;
                             if(!isupper(caractere))
-                            {   cout << "O caractere " << caractere << " é terminal " << endl;
+                            {
                                 bool modificouProducao = false;
                                 bool achouProducaoIgual = false;
                                 //verificar se ja existe uma regra que tem uma produdao que produz apenas esse terminal
@@ -519,12 +519,9 @@ public:
                                         for(const string &producaoVerificacao : regraVerificacao.second)
                                         {   
                                             if(producaoVerificacao == stringCaractere){
-                                                cout << "A regra " << regraVerificacao.first << " possui uma producao de tamanho 1 que gera " << caractere << endl;
-                                                //cout << "Uma produção foi modificada: " << producao << " foi alterada para: ";
                                                 novoCaractere += regraVerificacao.first;
                                                 modificouProducao = true;
                                                 achouProducaoIgual = true;
-                                                //cout << producao << endl;
                                             }
                                         }
                                     }
@@ -532,7 +529,6 @@ public:
                                 //Não encontrou produção igual
                                 //Necessário criar nova regra
                                 if(achouProducaoIgual == false){
-                                    cout << "O caractere " << caractere << " é terminal e nenhuma produção foi encontrada para ele. Criando nova regra..." << endl;
                                     string nomeRegra = "R" + to_string(numeroRegra);
                                     gramatica[nomeRegra].push_back(stringCaractere);
                                     numeroRegra++;
@@ -550,7 +546,6 @@ public:
                                 novaProducao += caractere;
                             }
                         }
-                        cout << "A producao " << producao << " vai receber um novo valor: " << novaProducao << endl;
                         producao = novaProducao;
                     }
                 }
@@ -565,11 +560,11 @@ int main()
 
     if (Gramatica.carregaGramatica())
     {
-        // Gramatica.adicionaSimboloInicial();
-        // Gramatica.removeLambda();
-        // Gramatica.aplicaRegraDaCadeia();
-        // Gramatica.aplicaTerm();
-        // Gramatica.aplicaReach();
+        Gramatica.adicionaSimboloInicial();
+        Gramatica.removeLambda();
+        Gramatica.aplicaRegraDaCadeia();
+        Gramatica.aplicaTerm();
+        Gramatica.aplicaReach();
         Gramatica.aplicaChomsky();
         Gramatica.printaGramatica();
     }
