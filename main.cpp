@@ -111,7 +111,7 @@ public:
         }
     }
 
-    void removeLambdaTeste()
+    void removeLambda()
     {
         vector<string> producoesLambda;
         // Encontra regras que produzem lambda e já remove o lambda
@@ -433,24 +433,129 @@ public:
         //           Cria um novo estado com uma produção que contém os simbolos restantes
         //           Verifica se esse estado já não existe. Caso não exista, adicione ele a gramática
         //   Verifica a gramática até não gerar mais nenhum estado novo
-        //
-        // Para cada regra da gramática
-        //   Para cada produção da regra
-        //       Se a regra possui tamanho == 2 e um não terminal:
-        //           Cria um estado com uma produção para o não terminal
+   
+        //Para nomear regras
         int numeroRegra = 1;
-        for (auto &regra : gramatica)
-        {
-            for (const string &producao : regra.second)
+
+        //Deixa todas as produções com tamanho 2
+        bool criouEstadoNovo;
+        do{
+            criouEstadoNovo = false;
+            for (auto &regra : gramatica)
             {
-                if (producao.length() > 2)
+                for (string &producao : regra.second)
                 {
-                    string novaProducao;
-                    string nomeRegra = "R" + to_string(numeroRegra);
-                    numeroRegra++;
+                    if (producao.length() > 2)
+                    {
+                        //Armazena em uma variável o conteúdo da produção a partir do 2° caractere
+                        //Remove da produção todos os caracteres a partir do 2°
+                        bool existeProducao = false;
+                        string novaProducao = producao.substr(1);
+                        producao.erase(1);
+                        
+                        for(auto& regraVerificacao: gramatica)
+                        {
+                            if(regraVerificacao.second.size() == 1){
+                                for(const string &producaoVerificacao : regraVerificacao.second)
+                                {   
+                                    //Se existe uma regra que possui apenas 1 produção
+                                    //Essa produção for igual à 'novaProdução'
+                                    //Adicionamos à produção origial o símbolo dessa regra (concatena)
+                                    if(producaoVerificacao == novaProducao){
+                                        existeProducao = true;
+                                        producao += regraVerificacao.first;
+                                    }
+                                }
+                            }
+                        }
+                        if(existeProducao == false){
+                            string nomeRegra = "R" + to_string(numeroRegra);
+                            gramatica[nomeRegra].push_back(novaProducao);
+                            producao += nomeRegra;
+                            numeroRegra++;
+                            //criouEstadoNovo=true;
+                        }
+                    }
                 }
             }
-        }
+        }while(criouEstadoNovo == true);
+
+        // Para cada regra da gramática
+        //   Para cada produção da regra
+        //       Se a produção possui tamanho == 2 e um não terminal:
+        //           Cria um estado com uma produção para o não terminal
+
+        //remover a regra e adicionar uma nova correta
+
+        //verificar se funciona corretamente quando chamar um estado que tem nome de tamanho 2 (R1, R2, R3)
+        bool criouNovaRegra = true;
+        do{
+            criouNovaRegra = false;
+            for(auto &regra : gramatica)
+            {
+                cout << "Verificando a regra " << regra.first << endl;
+                for(string &producao : regra.second)
+                {   
+                    cout << "Verificando a producao " << producao << endl;
+                    if(producao.size() == 2){
+                        cout << " -> A producao possui tamanho 2 " <<  endl;
+                        string novaProducao;
+                        for(char &caractere : producao)
+                        {
+                            cout << "Verificando o caractere " << caractere << endl;
+                            if(!isupper(caractere))
+                            {   cout << "O caractere " << caractere << " é terminal " << endl;
+                                bool modificouProducao = false;
+                                bool achouProducaoIgual = false;
+                                //verificar se ja existe uma regra que tem uma produdao que produz apenas esse terminal
+                                //caso negativo, criar uma nova regra
+                                //caso positivo, apenas alterar a produção da regra
+                                string stringCaractere(1, caractere);
+                                string novoCaractere;
+                                for(auto& regraVerificacao: gramatica)
+                                {   
+                                    if(regraVerificacao.second.size() == 1)
+                                    {
+                                        for(const string &producaoVerificacao : regraVerificacao.second)
+                                        {   
+                                            if(producaoVerificacao == stringCaractere){
+                                                cout << "A regra " << regraVerificacao.first << " possui uma producao de tamanho 1 que gera " << caractere << endl;
+                                                //cout << "Uma produção foi modificada: " << producao << " foi alterada para: ";
+                                                novoCaractere += regraVerificacao.first;
+                                                modificouProducao = true;
+                                                achouProducaoIgual = true;
+                                                //cout << producao << endl;
+                                            }
+                                        }
+                                    }
+                                }
+                                //Não encontrou produção igual
+                                //Necessário criar nova regra
+                                if(achouProducaoIgual == false){
+                                    cout << "O caractere " << caractere << " é terminal e nenhuma produção foi encontrada para ele. Criando nova regra..." << endl;
+                                    string nomeRegra = "R" + to_string(numeroRegra);
+                                    gramatica[nomeRegra].push_back(stringCaractere);
+                                    numeroRegra++;
+                                    novaProducao += nomeRegra;
+                                    modificouProducao = true;
+                                    criouNovaRegra = true;
+                                }
+                                if(modificouProducao == true){
+                                    novaProducao += novoCaractere;
+                                }
+                            }
+                            //Se o caractere é maiúsculo, apenas o copia
+                            else
+                            {
+                                novaProducao += caractere;
+                            }
+                        }
+                        cout << "A producao " << producao << " vai receber um novo valor: " << novaProducao << endl;
+                        producao = novaProducao;
+                    }
+                }
+            }
+        }while(criouNovaRegra == true);
     }
 };
 
@@ -460,12 +565,12 @@ int main()
 
     if (Gramatica.carregaGramatica())
     {
-        Gramatica.adicionaSimboloInicial();
-        Gramatica.removeLambdaTeste();
-        Gramatica.aplicaRegraDaCadeia();
-        //Gramatica.aplicaReach();
-        //Gramatica.aplicaChomsky();
-        Gramatica.aplicaTerm();
+        // Gramatica.adicionaSimboloInicial();
+        // Gramatica.removeLambda();
+        // Gramatica.aplicaRegraDaCadeia();
+        // Gramatica.aplicaTerm();
+        // Gramatica.aplicaReach();
+        Gramatica.aplicaChomsky();
         Gramatica.printaGramatica();
     }
     else
