@@ -5,6 +5,17 @@ da Universidade Federal de Lavras - MG.
 
 O programa converte uma Gramática Livre de Contexo (GLC) para a Forma Normal de Chomsky (FNC).
 
+# Tecnologias
+
+O projeto foi implementado com o uso de C++ e bibliotecas nativas da linguagem.
+
+#### Instruções:              
+- Variáveis: [A-Z]
+- Terminais: [a-z]
+- Operador de definição: ->
+- Separador de regras: |
+- Lambda: .
+
 # Uso
 
 Para fins de replicação, basta clonar o repositório usando
@@ -14,6 +25,8 @@ git clone https://github.com/JoseJaan/Chomsky-normal-form.git
 ```
 
 e então rodar o arquivo main.cpp.
+
+>:bulb:: Não se esqueça de conferir se 'gramatica.txt' está no diretório correto.
 
 # Autoria
 
