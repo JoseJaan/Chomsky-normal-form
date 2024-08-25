@@ -1,4 +1,4 @@
-S -> aA | bAB
-A -> abC | .
-B -> Ac | AA
-C -> aBC | aB
+S -> A | ABa | AbA
+A -> Aa | b
+B -> Bb | BC | aA
+C -> CB | CA
